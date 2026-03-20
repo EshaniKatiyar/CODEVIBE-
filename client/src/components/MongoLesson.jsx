@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import bg7 from '../assets/background7.jpeg';
 const MongoLesson = () => {
   const [completed, setCompleted] = useState([]);
 

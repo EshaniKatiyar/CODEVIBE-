@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import bg1 from '../assets/background1.jpeg';
+
 
 const HtmlLesson = () => {
   const [completed, setCompleted] = useState([]);
@@ -22,7 +22,6 @@ const HtmlLesson = () => {
       className="html-lesson"
       style={{
         padding: '20px',
-        backgroundImage: `url(${bg1})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         minHeight: '100vh',

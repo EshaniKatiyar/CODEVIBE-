@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import bg2 from '../assets/background2.jpeg'
+
 const ExpressLesson = () => {
   const [completed, setCompleted] = useState([]);
 

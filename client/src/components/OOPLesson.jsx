@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import bg3 from '../assets/background3.jpeg';
 const OOPLesson = () => {
   const [completed, setCompleted] = useState([]);
 

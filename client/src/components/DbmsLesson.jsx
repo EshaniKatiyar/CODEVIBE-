@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import bg5 from "../assets/background5.jpeg"
+
 const DBMSLessons = () => {
   const [completed, setCompleted] = useState([]);
 
