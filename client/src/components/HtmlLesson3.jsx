@@ -65,28 +65,9 @@ const HtmlLesson3 = () => {
       <h2>Try Yourself: Create all three types of lists</h2>
 
       <Compiler
+        hint="💡 Review the lesson instructions carefully. Make sure your output matches exactly."
         LessonId="html-lesson3"
-        
-         expectedOutput={(output) => {
-    const normalize = (s) => s.replace(/\s+/g, " ").trim();
-    const expected=`<ol>
-<li>wake up</li>
-<li>brush your teeth</li>
-<li>have breakfast</li>
-</ol>
-
-<ul>
-<li>milk</li>
-<li>bread</li>
-<li>egg</li>
-</ul>
-
-<dl>
-<dt>HTML</dt>
-<dd>It stands for Hyper Text Markup Language</dd>
-</dl>`
- return normalize(output) === normalize(expected);
-        }}
+        expectedOutput={`<ol>\n<li>wake up</li>\n<li>brush your teeth</li>\n<li>have breakfast</li>\n</ol>\n\n<ul>\n<li>milk</li>\n<li>bread</li>\n<li>egg</li>\n</ul>\n\n<dl>\n<dt>HTML</dt>\n<dd>It stands for Hyper Text Markup Language</dd>\n</dl>`}
         initialCode={`<h1>Hello from Code Vibe</h1>`}
         onSuccess={handleSuccess}
       />
