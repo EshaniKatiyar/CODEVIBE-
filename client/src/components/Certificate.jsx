@@ -3,6 +3,27 @@ import axios from "axios";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config/api";
+
+// Maps display course name → lesson-ID prefix (mirrors server-side resolver)
+const getCoursePrefix = (courseName) => {
+  const key = (courseName || "").toLowerCase();
+
+  const map = {
+    javascript: "js-",
+    "react.js": "react-",
+    "node.js": "node-",
+    oop: "oop-",
+    mongodb: "mongo-",
+    "express.js": "express-",
+    dbms: "dbms-",
+    dsa: "dsa-",
+    html: "html-",
+    css: "css-",
+  };
+
+  return map[key] || `${key}-`;
+};
 
 const defaultBackgroundUrl = "src/assets/completion certificate.png";
 
@@ -39,7 +60,7 @@ export default function Certificate({ backgroundUrl = defaultBackgroundUrl }) {
     try{
 
       const certRes=await axios.post(
-        "http://localhost:5002/api/certificate",
+        `${API_BASE_URL}/api/certificate`,
         {email,courseName}
       );
 
@@ -51,7 +72,7 @@ export default function Certificate({ backgroundUrl = defaultBackgroundUrl }) {
       setInfo({...cert,studentName:displayName});
 
       const progRes=await axios.get(
-        `http://localhost:5002/api/progress/${email}`
+        `${API_BASE_URL}/api/progress/${email}`
       );
 
       setProgress(progRes.data);
@@ -88,16 +109,24 @@ export default function Certificate({ backgroundUrl = defaultBackgroundUrl }) {
   };
 
 
-  const avgScore =
-    progress?.scores
-      ? Math.round(
-          Object.values(progress.scores).reduce((a,b)=>a+b,0) /
-          Object.values(progress.scores).length
-        )
+  const avgScore = (() => {
+    if (!progress?.scores || !courseName) return 0;
+    const prefix = getCoursePrefix(courseName);
+    const vals = Object.entries(progress.scores)
+      .filter(([id]) => id.toLowerCase().startsWith(prefix))
+      .map(([, v]) => v);
+    return vals.length
+      ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
       : 0;
+  })();
 
-  const completedLessons =
-    progress?.completedLessons?.length || 0;
+  const completedLessons = (() => {
+    if (!progress?.completedLessons || !courseName) return 0;
+    const prefix = getCoursePrefix(courseName);
+    return progress.completedLessons.filter((id) =>
+      id.toLowerCase().startsWith(prefix)
+    ).length;
+  })();
 
 
   const goToReport=()=>{

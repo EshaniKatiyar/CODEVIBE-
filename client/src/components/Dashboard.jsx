@@ -1,75 +1,105 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaSignOutAlt } from "react-icons/fa";
+import { useAuth } from "../AuthProvider.jsx";
+
 const Dashboard = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user")); 
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/login");
+    logout();
+    navigate("/Login");
   };
 
+  // Safely navigates to the detailed course progress report page by defensively
+  // resolving potential casing mismatches (email vs. Email) on the active user object.
   const handleViewReport = (course) => {
     // yaha course select karke report page pe bhejenge
-    navigate(`/report/${user.email}?course=${course}`);
+    const email = user?.email || user?.Email || "";
+    navigate(`/report/${email}?course=${course}`);
   };
 
   if (!user) {
     return (
       <p style={{ textAlign: "center", marginTop: "2rem", color: "red" }}>
-        ⚠️ Please login or signup first!
+        ⚠️ Please log in or sign up first!
       </p>
     );
   }
 
   return (
-    <div className="dashboard" style={{ padding: "24px", color: "white" }}>
-      <div className="dashboard-header" style={{ marginBottom: "24px" }}>
-        <h1 style={{ fontSize: "2rem" }}>Welcome, {user.username} 🎉</h1>
-       <button
-  style={{
-    marginTop: "8px",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    background: "linear-gradient(var(--button-bg), var(--primary-red), var(--secondary-pink))",
-    color: "var(--white)",
-    border: "none",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-  }}
-  onClick={handleLogout}
->
-  <FaSignOutAlt style={{ color: "var(--white)" }} />
-  Logout
-</button>
+    <div className="dashboard">
+      <div className="dashboard-header">
+        <h1 style={{ textAlign: "center", width: "100%" }}>
+        Welcome, {user.username} 🎉
+        </h1>
+        <button
+          style={{
+            minHeight: "44px",
+            padding: "0.8rem 1.5rem",
+            borderRadius: "8px",
+            background: "linear-gradient(135deg, var(--primary-red), var(--secondary-pink))",
+            color: "var(--white)",
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            fontSize: "0.95rem",
+            fontWeight: "600",
+            transition: "all 0.3s ease",
+            boxShadow: "0 0 15px rgba(255, 77, 109, 0.4)",
+          }}
+          onClick={handleLogout}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "translateY(-2px) scale(1.05)";
+            e.target.style.boxShadow = "0 0 25px rgba(255, 77, 109, 0.8)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "none";
+            e.target.style.boxShadow = "0 0 15px rgba(255, 77, 109, 0.4)";
+          }}
+        >
+          <FaSignOutAlt style={{ color: "var(--white)" }} />
+          Logout
+        </button>
       </div>
 
-    <div 
-  className="dashboard-card" 
-  style={{ marginBottom: "24px", color: "black" }}
->
-  <p><strong>👤 Username:</strong> {user.username}</p>
-  <p><strong>📧 Email:</strong> {user.email}</p>
-  <p><strong>🏫 College:</strong> {user.college}</p>
-  <p><strong>🎓 Year:</strong> {user.year}</p>
-</div>
+      <div className="dashboard-card" style={{ color: "black", width: "100%", maxWidth: "600px" }}>
+        <p><strong>👤 Username:</strong> {user.username}</p>
+        <p><strong>📧 Email:</strong> {user.email || user.Email}</p>
+        <p><strong>🏫 College:</strong> {user.college}</p>
+        <p><strong>🎓 Year:</strong> {user.year}</p>
+      </div>
 
       {/* Courses to view progress */}
-      <div className="courses" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+      <div className="courses" style={{ width: "100%", maxWidth: "600px" }}>
         {["HTML","CSS","JavaScript","OOP","DSA","DBMS","MongoDB","Node.js","Express.js","React.js"].map((c) => (
           <button
             key={c}
             onClick={() => handleViewReport(c)}
             style={{
-              padding: "10px 16px",
+              padding: "0.8rem 1rem",
               borderRadius: "8px",
-              background: "linear-gradient( #ff113d, #ff4d6d, #ff85a1)",
+              background: "linear-gradient(135deg, #ff113d, #ff4d6d, #ff85a1)",
               color: "#fff",
               border: "none",
               cursor: "pointer",
+              fontSize: "0.95rem",
+              fontWeight: "600",
+              minHeight: "44px",
+              transition: "all 0.3s ease",
+              boxShadow: "0 0 15px rgba(255, 77, 109, 0.4)",
+              width: "100%",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = "translateY(-3px) scale(1.05)";
+              e.target.style.boxShadow = "0 0 25px rgba(255, 77, 109, 0.8)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = "none";
+              e.target.style.boxShadow = "0 0 15px rgba(255, 77, 109, 0.4)";
             }}
           >
             View {c} Progress

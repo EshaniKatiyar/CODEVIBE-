@@ -29,22 +29,25 @@ const HtmlLesson8 = () => {
         <li><b>Class:</b> Can be used for multiple elements.</li>
         <li><b>ID:</b> Should be unique for one element only.</li>
       </ul>
+              <br/>
+    <hr/>
+
 
       <h3>🔹 Example Code</h3>
+
       <pre>
 {`<p class="my-text">This is a paragraph with a class.</p>
 <div id="unique-box">This has a unique ID.</div>`}
       </pre>
+        <br/>
+    <hr/>
 
-      <h2>Try Yourself</h2>
+      <h2>Try Yourself !!</h2>
       <Compiler
+        hint="💡 Review the lesson instructions carefully. Make sure your output matches exactly."
         LessonId="html-lesson8"
-        expectedOutput={(output) => {
-          const normalize = (s) => s.replace(/\s+/g, " ").trim();
-          const expected = `<p class="my-text">This is a paragraph with a class.</p>
-<div id="unique-box">This has a unique ID.</div>`;
-          return normalize(output) === normalize(expected);
-        }}
+        expectedOutput={`<p class="my-text">This is a paragraph with a class.</p>
+<div id="unique-box">This has a unique ID.</div>`}
         initialCode={`<h1>HELLO, From Code Vibe</h1>`}
         onSuccess={handleSuccess}
       />

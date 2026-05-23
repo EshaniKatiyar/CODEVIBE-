@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import API_BASE_URL from '../config/api';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import Compiler from './Compiler';
 
@@ -6,6 +8,59 @@ const DSALesson1 = () => {
   const [isCorrect, setIsCorrect] = useState(false);
   const [output, setOutput] = useState("");
   const navigate = useNavigate();
+
+  const [practiceCompleted, setPracticeCompleted] = useState({});
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const email = localStorage.getItem('userEmail') || 'guest';
+    const savedPractice = localStorage.getItem(`dsaPractice_${email}`);
+    let localPractice = {};
+    if (savedPractice) {
+      try {
+        localPractice = JSON.parse(savedPractice);
+        setPracticeCompleted(localPractice);
+      } catch (e) {
+        console.error('Error parsing practice progress', e);
+      }
+    }
+
+    if (email !== 'guest') {
+      axios.get(`${API_BASE_URL}/api/progress/${email}`)
+        .then(res => {
+          const completedFromBackend = res.data?.completedLessons || [];
+          let hasUpdates = false;
+          const mergedPractice = { ...localPractice };
+          completedFromBackend.forEach(problemId => {
+            if (!mergedPractice[problemId]) {
+              mergedPractice[problemId] = true;
+              hasUpdates = true;
+            }
+          });
+          if (hasUpdates) {
+            setPracticeCompleted(mergedPractice);
+            localStorage.setItem(`dsaPractice_${email}`, JSON.stringify(mergedPractice));
+          }
+        })
+        .catch(err => console.error('Error syncing practice progress from backend:', err));
+    }
+  }, []);
+
+  const togglePractice = (problemId) => {
+    setPracticeCompleted(prev => {
+      const email = localStorage.getItem('userEmail') || 'guest';
+      const updated = { ...prev, [problemId]: !prev[problemId] };
+      localStorage.setItem(`dsaPractice_${email}`, JSON.stringify(updated));
+
+      if (updated[problemId]) {
+        axios.post(`${API_BASE_URL}/api/lesson/${problemId}/complete`, { email, score: 100 })
+          .catch(err => console.error("Save practice progress error:", err));
+      }
+
+      return updated;
+    });
+  };
+
 
   const handleRun = (userCode) => {
     // simulate JS code run
@@ -49,6 +104,7 @@ const DSALesson1 = () => {
       </pre>
 
       <Compiler
+        hint="💡 Hint: 1. Write a simple program to print 'Welcome to DSA' using JavaScript."
         LessonId="dsa-lesson-1"
         language="js"
         initialCode={`// Write your code here
@@ -68,6 +124,68 @@ console.log("Welcome to DSA");`}
           ⏭ NEXT LESSON
         </Link>
       )}
+      {/* 🎯 Practice Problems Section */}
+      <div style={{ marginTop: '50px', padding: '25px', backgroundColor: '#1a1a2e', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.4)', color: '#fff' }}>
+        <h2 style={{ color: '#ff4d6d', borderBottom: '2px solid #ff4d6d', paddingBottom: '10px', marginBottom: '20px' }}>🎯 Practice Problems: Stack Implementation</h2>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 16px', backgroundColor: '#16213e', borderRadius: '8px' }}>
+            <input 
+              type="checkbox" 
+              checked={practiceCompleted['validate-stack-sequences'] || false} 
+              onChange={() => togglePractice('validate-stack-sequences')}
+              style={{ width: '20px', height: '20px', accentColor: '#ff4d6d', cursor: 'pointer' }}
+            />
+            <a href="https://leetcode.com/problems/validate-stack-sequences/" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'none', fontSize: '16px', flexGrow: 1, cursor: 'pointer' }}>Validate Stack Sequences</a>
+            <span style={{ backgroundColor: '#ffa116', color: '#000', padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>LeetCode</span>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 16px', backgroundColor: '#16213e', borderRadius: '8px' }}>
+            <input 
+              type="checkbox" 
+              checked={practiceCompleted['basic-calculator-ii'] || false} 
+              onChange={() => togglePractice('basic-calculator-ii')}
+              style={{ width: '20px', height: '20px', accentColor: '#ff4d6d', cursor: 'pointer' }}
+            />
+            <a href="https://leetcode.com/problems/basic-calculator-ii/" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'none', fontSize: '16px', flexGrow: 1, cursor: 'pointer' }}>Basic Calculator II</a>
+            <span style={{ backgroundColor: '#ffa116', color: '#000', padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>LeetCode</span>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 16px', backgroundColor: '#16213e', borderRadius: '8px' }}>
+            <input 
+              type="checkbox" 
+              checked={practiceCompleted['decode-string'] || false} 
+              onChange={() => togglePractice('decode-string')}
+              style={{ width: '20px', height: '20px', accentColor: '#ff4d6d', cursor: 'pointer' }}
+            />
+            <a href="https://leetcode.com/problems/decode-string/" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'none', fontSize: '16px', flexGrow: 1, cursor: 'pointer' }}>Decode String</a>
+            <span style={{ backgroundColor: '#ffa116', color: '#000', padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>LeetCode</span>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 16px', backgroundColor: '#16213e', borderRadius: '8px' }}>
+            <input 
+              type="checkbox" 
+              checked={practiceCompleted['largest-rectangle-in-histogram'] || false} 
+              onChange={() => togglePractice('largest-rectangle-in-histogram')}
+              style={{ width: '20px', height: '20px', accentColor: '#ff4d6d', cursor: 'pointer' }}
+            />
+            <a href="https://leetcode.com/problems/largest-rectangle-in-histogram/" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'none', fontSize: '16px', flexGrow: 1, cursor: 'pointer' }}>Largest Rectangle in Histogram</a>
+            <span style={{ backgroundColor: '#ffa116', color: '#000', padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>LeetCode</span>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 16px', backgroundColor: '#16213e', borderRadius: '8px' }}>
+            <input 
+              type="checkbox" 
+              checked={practiceCompleted['maximal-rectangle'] || false} 
+              onChange={() => togglePractice('maximal-rectangle')}
+              style={{ width: '20px', height: '20px', accentColor: '#ff4d6d', cursor: 'pointer' }}
+            />
+            <a href="https://leetcode.com/problems/maximal-rectangle/" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'none', fontSize: '16px', flexGrow: 1, cursor: 'pointer' }}>Maximal Rectangle</a>
+            <span style={{ backgroundColor: '#ffa116', color: '#000', padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>LeetCode</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
