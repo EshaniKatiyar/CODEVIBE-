@@ -27,6 +27,69 @@ const Signup = () => {
     });
   };
 
+  // Username Validation
+  const handleUsernameChange = (e) => {
+    const value = e.target.value;
+
+    setUsername(value);
+
+    setErrors((prev) => ({
+      ...prev,
+      username: validateUsername(value),
+    }));
+  };
+
+  // College Validation
+  const handleCollegeChange = (e) => {
+    const value = e.target.value;
+
+    setCollege(value);
+
+    setErrors((prev) => ({
+      ...prev,
+      college: validateCollege(value),
+    }));
+  };
+
+  // Year Validation
+  const handleYearChange = (e) => {
+    const value = e.target.value;
+
+    if (/^\d{0,4}$/.test(value)) {
+      setYear(value);
+
+      setErrors((prev) => ({
+        ...prev,
+        year: validateYear(value),
+      }));
+    }
+  };
+
+  // Email Validation
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+
+    setEmail(value);
+
+    setErrors((prev) => ({
+      ...prev,
+      email: validateEmail(value),
+    }));
+  };
+
+  // Password Validation
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+
+    setPassword(value);
+
+    setErrors((prev) => ({
+      ...prev,
+      password: validatePassword(value),
+    }));
+  };
+
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 

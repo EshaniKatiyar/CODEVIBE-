@@ -78,11 +78,20 @@ const Login = () => {
       <div className="login-container">
         
         <div className="login-image">
-          <img src={loginImage} alt="Login" />
+        <img
+  src={loginImage}
+  alt="Login"
+  loading="lazy"
+  style={{
+    width: "100%",
+    maxWidth: "500px",
+    height: "auto",
+  }}
+/>
         </div>
 
         <div className="login-card">
-          <form className="login-form" onSubmit={handleSubmit}>
+          <form className="login-form" onSubmit={handleSubmit} noValidate>
             <h1>Hello, Welcome!</h1>
 
             <label htmlFor="email">EMAIL:</label>
@@ -92,9 +101,28 @@ const Login = () => {
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              onChange={handleEmailChange}
+              aria-invalid={!!errors.email}
+              aria-describedby="email-error"
+              style={{
+                border: errors.email
+                  ? "1px solid #ff4d6d"
+                  : "",
+              }}
             />
+
+            {errors.email && (
+              <p
+                id="email-error"
+                style={{
+                  color: "#ff4d6d",
+                  fontSize: "0.85rem",
+                  marginTop: "5px",
+                }}
+              >
+                {errors.email}
+              </p>
+            )}
 
             <PasswordField
               id="login-password"
@@ -102,6 +130,18 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+
+            {errors.password && (
+              <p
+                style={{
+                  color: "#ff4d6d",
+                  fontSize: "0.85rem",
+                  marginTop: "5px",
+                }}
+              >
+                {errors.password}
+              </p>
+            )}
 
             <button type="submit" disabled={loading}>
               {loading ? "SUBMITTING..." : "SUBMIT"}
