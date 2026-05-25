@@ -30,10 +30,15 @@ const calculateFeedback = (score) => {
 
 exports.getCertificateInfo = async (req, res) => {
   try {
-    const { email, courseName } = req.body;
+    const email = req.user?.email;
+    const { courseName } = req.body;
 
-    if (!email || !courseName) {
-      return res.status(400).json({ message: "Email and courseName required" });
+    if (!email) {
+      return res.status(401).json({ message: "Unauthorized user" });
+    }
+
+    if (!courseName) {
+      return res.status(400).json({ message: "courseName required" });
     }
 
     const progress = await Progress.findOne({ email });
