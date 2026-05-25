@@ -3,15 +3,19 @@ const Progress = require('../../models/progress');
 
 // Maps display course name → lesson-ID prefix
 const getCoursePrefix = (courseName) => {
-  const key = (courseName || "").toLowerCase();
+  const key = (courseName || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/\./g, "");
 
   const map = {
     javascript: "js-",
-    "react.js": "react-",
-    "node.js": "node-",
+    reactjs: "react-",
+    nodejs: "node-",
     oop: "oop-",
     mongodb: "mongo-",
-    "express.js": "express-",
+    expressjs: "express-",
     dbms: "dbms-",
     dsa: "dsa-",
     html: "html-",
