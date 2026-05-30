@@ -156,8 +156,9 @@ const getAnalytics = async (req, res) => {
       return res.status(403).json({ message: 'Forbidden' });
     }
 
+    console.log(`[getAnalytics] Querying user with email: "${email}"`);
     const [user, progress, events] = await Promise.all([
-      User.findOne({ Email: email }).lean(),
+      User.findOne({ email }).lean(),
       Progress.findOne({ email }).lean(),
       Analytics.find({ email }).sort({ createdAt: 1 }).lean(),
     ]);
@@ -262,6 +263,9 @@ const getAnalytics = async (req, res) => {
       quizAttempts: events.filter((event) => event.type === 'quiz').length,
       streak: getLearningStreak(events),
       lastUpdated: events.length ? events[events.length - 1].createdAt : null,
+      xp: progress?.xp || 0,
+      level: progress?.level || 1,
+      badges: progress?.badges || [],
     };
 
     const analytics = {
@@ -285,7 +289,7 @@ const getAnalytics = async (req, res) => {
 
     const profile = {
       username: user.username,
-      email: user.Email,
+      email: user.email,
       college: user.college,
       year: user.year,
       bio: user.bio || '',
@@ -311,4 +315,5 @@ const getAnalytics = async (req, res) => {
 
 module.exports = {
   getAnalytics,
+  getLearningStreak,
 };

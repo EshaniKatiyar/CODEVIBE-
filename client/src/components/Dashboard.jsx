@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Confetti from "react-confetti";
+import { useWindowSize } from "react-use";
 import {
   ArrowRight,
   BarChart3,
@@ -551,6 +553,20 @@ const Dashboard = () => {
 
   const email = user?.email || "";
 
+  const { width, height } = useWindowSize();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [prevLevel, setPrevLevel] = useState(null);
+
+  useEffect(() => {
+    if (analytics?.stats?.level) {
+      if (prevLevel !== null && analytics.stats.level > prevLevel) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000);
+      }
+      setPrevLevel(analytics.stats.level);
+    }
+  }, [analytics?.stats?.level, prevLevel]);
+
   useEffect(() => {
     if (!token || !email) return;
 
@@ -799,6 +815,7 @@ const Dashboard = () => {
   return (
 
     <section className="dashboard-shell">
+      {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={500} />}
       <header className="dashboard-hero">
         <div>
           <p className="dashboard-subtitle">Welcome back</p>
@@ -848,6 +865,38 @@ const Dashboard = () => {
                   <span>{getLevel(analytics?.stats?.totalPoints)}</span>
                   <small>Rank</small>
                 </div>
+              </div>
+
+              <div className="gamification-progress" style={{ margin: '1.5rem 0', padding: '1.2rem', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                  <span style={{ fontWeight: '600', color: '#ffb8d9', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Star size={16} fill="#ffb8d9" /> Level {analytics?.stats?.level || 1}
+                  </span>
+                  <span style={{ fontSize: '0.9rem', opacity: 0.7 }}>
+                    {analytics?.stats?.xp || 0} / {(analytics?.stats?.level || 1) * 100} XP
+                  </span>
+                </div>
+                <div style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: '8px', height: '8px', overflow: 'hidden' }}>
+                  <div style={{ 
+                    background: 'linear-gradient(90deg, #ffb8d9, #c386ff)', 
+                    height: '100%', 
+                    borderRadius: '8px',
+                    width: `${Math.min(100, ((analytics?.stats?.xp || 0) / ((analytics?.stats?.level || 1) * 100)) * 100)}%`,
+                    transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}></div>
+                </div>
+                <div style={{ textAlign: 'center', marginTop: '0.8rem', fontSize: '0.8rem', opacity: 0.6 }}>
+                  {((analytics?.stats?.level || 1) * 100) - (analytics?.stats?.xp || 0)} XP to next level
+                </div>
+                {analytics?.stats?.badges && analytics.stats.badges.length > 0 && (
+                  <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    {analytics.stats.badges.map(b => (
+                      <span key={b} style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '6px', color: '#fff', textTransform: 'capitalize' }}>
+                        🏆 {b.replace('_', ' ')}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="profile-details">

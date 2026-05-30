@@ -37,11 +37,49 @@ exports.completeLesson = async (req, res) => {
     
     if (!email) return res.status(400).json({ message: 'Email is required' });
 
-    const progress = await Progress.findOneAndUpdate(
+    let progress = await Progress.findOne({ email });
+    const isNewCompletion = !progress || !progress.completedLessons.includes(lessonId);
+
+    let earnedXp = 0;
+    let earnedBadges = progress?.badges || [];
+
+    if (isNewCompletion) {
+      let baseXp = Math.round((score || 100) * 0.5) || 50;
+
+      const { getLearningStreak } = require('../analytics/analyticsController');
+      const events = await Analytics.find({ email }).sort({ createdAt: 1 }).lean();
+      const currentStreak = getLearningStreak(events);
+      
+      let multiplier = 1.0;
+      if (currentStreak >= 7) multiplier = 1.5;
+      else if (currentStreak >= 3) multiplier = 1.2;
+
+      earnedXp = Math.round(baseXp * multiplier);
+
+      if (!earnedBadges.includes('first_blood') && (!progress || progress.completedLessons.length === 0)) {
+        earnedBadges.push('first_blood');
+      }
+      
+      const hour = new Date().getHours();
+      if (!earnedBadges.includes('night_owl') && (hour >= 0 && hour < 5)) {
+        earnedBadges.push('night_owl');
+      }
+    }
+
+    const currentXp = progress?.xp || 0;
+    const newTotalXp = currentXp + earnedXp;
+    const newLevel = Math.floor(newTotalXp / 100) + 1;
+
+    progress = await Progress.findOneAndUpdate(
       { email },
       { 
         $addToSet: { completedLessons: lessonId },
-        $set: { [`scores.${lessonId}`]: score || 0 }
+        $set: { 
+          [`scores.${lessonId}`]: score || 0,
+          xp: newTotalXp,
+          level: newLevel,
+          badges: earnedBadges
+        }
       },
       { new: true, upsert: true }
     );
