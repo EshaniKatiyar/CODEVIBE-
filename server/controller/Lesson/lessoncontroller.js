@@ -22,11 +22,9 @@ exports.getLesson = async (req, res) => {
   try {
     const { id } = req.params;
     const lesson = await Lesson.findOne({ lessonId: id });
-
     if (!lesson) {
       return res.status(404).json({ message: 'Lesson not found' });
     }
-
     res.json(lesson);
   } catch (err) {
     console.error(err);
@@ -36,7 +34,8 @@ exports.getLesson = async (req, res) => {
 
 exports.completeLesson = async (req, res) => {
   try {
-    const { email, score, coins, learningTime, type } = req.body;
+    const email = req.user.email; // derived from verified JWT
+    const { score, coins, learningTime, type } = req.body; // email removed from body
     const lessonId = req.params.id;
 
     if (!email) {
@@ -56,11 +55,9 @@ exports.completeLesson = async (req, res) => {
     } else {
       const lastDate = new Date(existingProgress.lastActiveDate);
       lastDate.setHours(0, 0, 0, 0);
-
       const diffDays = Math.floor(
         (today - lastDate) / (1000 * 60 * 60 * 24)
       );
-
       if (diffDays === 1) {
         currentStreak += 1;
       } else if (diffDays > 1) {
