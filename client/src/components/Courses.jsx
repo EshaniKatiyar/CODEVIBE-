@@ -57,6 +57,10 @@ const Courses = () => {
   }, []);
   const location = useLocation();
   useEffect(() => {
+    if (location.state?.scrollToTop) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     if (location.state?.scrollToFaq) {
       const element = document.querySelector('.faq-section');
       if (element) {
@@ -88,17 +92,26 @@ const Courses = () => {
     }
 
     if (location.state?.scrollToCourses) {
-      const element = document.getElementById('courses-section');
+      const element = document.getElementById('courses') || document.getElementById('courses-section');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    if (location.state?.scrollToContact) {
+      const element = document.getElementById('contact-footer');
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     }
 
     if (
+      location.state?.scrollToTop ||
       location.state?.scrollToFaq ||
       location.state?.scrollToRoadmap ||
       location.state?.scrollToProjectGenerator ||
-      location.state?.scrollToProjectSuggestions
+      location.state?.scrollToProjectSuggestions ||
+      location.state?.scrollToContact
     ) {
       window.history.replaceState({}, document.title);
     }
