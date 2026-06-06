@@ -257,7 +257,6 @@ console.log("Welcome to DSA");`}
   >
     ← Previous Lesson
   </button>
-
  
 </div>
     </div>
