@@ -910,6 +910,12 @@ h3 {
   .footer-brand-title {
     font-size: 1.5rem;
   }
+  .footer-brand,
+  .footer-links,
+  .footer-social {
+    align-items: center;
+    text-align: center;
+  }
 }
 
 /* Progress Container */
