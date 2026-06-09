@@ -77,6 +77,18 @@ const ALL_POSSIBLE_BADGES = [
   { id: "html_master", label: "HTML Master", desc: "Complete all HTML lessons" }
 ];
 
+// Helper: derive the most recent activity date from events array
+const getLastActivityDate = (events, fallback) => {
+  if (!events.length) return fallback;
+  const timestamps = events
+    .map(e => new Date(e.x || e.createdAt || e.date || '').getTime())
+    .filter(t => !Number.isNaN(t));
+  if (!timestamps.length) return fallback;
+  const d = new Date(Math.max(...timestamps));
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
 const buildHeatmapCells = (heatmapData = {}, streak = 0, events = [], weeks = 10) => {
   const dayMs = 24 * 60 * 60 * 1000;
   const today = new Date();
@@ -93,8 +105,11 @@ const buildHeatmapCells = (heatmapData = {}, streak = 0, events = [], weeks = 10
     if (!activeDates[key]) activeDates[key] = 0;
   });
 
+  // FIX: anchor streak to last activity date, not today
+  const lastActivityDate = getLastActivityDate(events, today);
+
   for (let offset = 0; offset < Math.min(streak, totalDays); offset += 1) {
-    const streakDate = new Date(today.getTime() - offset * dayMs);
+    const streakDate = new Date(lastActivityDate.getTime() - offset * dayMs);
     const streakKey = streakDate.toISOString().slice(0, 10);
     activeDates[streakKey] = Math.max(activeDates[streakKey] || 0, 1);
   }
@@ -172,7 +187,7 @@ const StreakWeekVisualizer = ({ events = [], streak = 0 }) => {
   const dayMs = 24 * 60 * 60 * 1000;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   // Get last 7 days
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(today.getTime() - (6 - i) * dayMs);
@@ -193,8 +208,11 @@ const StreakWeekVisualizer = ({ events = [], streak = 0 }) => {
     return acc;
   }, {});
 
+  // FIX: anchor streak to last activity date, not today
+  const lastActivityDate = getLastActivityDate(events, today);
+
   for (let offset = 0; offset < Math.min(streak, 7); offset += 1) {
-    const streakDate = new Date(today.getTime() - offset * dayMs);
+    const streakDate = new Date(lastActivityDate.getTime() - offset * dayMs);
     activeDates[streakDate.toISOString().slice(0, 10)] = true;
   }
 
@@ -207,7 +225,7 @@ const StreakWeekVisualizer = ({ events = [], streak = 0 }) => {
         <span style={{ fontSize: '0.75rem', opacity: 0.6, whiteSpace: 'nowrap' }}>Keep it burning!</span>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
-        {last7Days.map((day, idx) => {
+        {last7Days.map((day) => {
           const isActive = activeDates[day.dateKey];
           return (
             <div key={day.dateKey} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
@@ -926,7 +944,6 @@ const Dashboard = () => {
   }
 
   return (
-
     <section className="dashboard-shell">
       {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={500} />}
       <header className="dashboard-hero">
@@ -990,9 +1007,9 @@ const Dashboard = () => {
                   </span>
                 </div>
                 <div style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: '8px', height: '8px', overflow: 'hidden' }}>
-                  <div style={{ 
-                    background: 'linear-gradient(90deg, #ffb8d9, #c386ff)', 
-                    height: '100%', 
+                  <div style={{
+                    background: 'linear-gradient(90deg, #ffb8d9, #c386ff)',
+                    height: '100%',
                     borderRadius: '8px',
                     width: `${Math.min(100, ((analytics?.stats?.xp || 0) / ((analytics?.stats?.level || 1) * 100)) * 100)}%`,
                     transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -1005,14 +1022,14 @@ const Dashboard = () => {
                   {ALL_POSSIBLE_BADGES.map(badge => {
                     const isEarned = analytics?.stats?.badges?.includes(badge.id);
                     return (
-                      <span 
-                        key={badge.id} 
+                      <span
+                        key={badge.id}
                         title={badge.desc}
-                        style={{ 
-                          fontSize: '0.75rem', 
-                          background: 'rgba(255,255,255,0.1)', 
-                          padding: '4px 8px', 
-                          borderRadius: '6px', 
+                        style={{
+                          fontSize: '0.75rem',
+                          background: 'rgba(255,255,255,0.1)',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
                           color: '#fff',
                           opacity: isEarned ? 1 : 0.4,
                           filter: isEarned ? 'none' : 'grayscale(100%)',
@@ -1343,9 +1360,9 @@ const Dashboard = () => {
                 </div>
 
                 <div className="subject-grid">
-                  <DailyQuests 
-                    xpEarnedToday={timelineData.points.length > 1 ? (timelineData.totalPoints - (timelineData.points[timelineData.points.length-2]?.value || 0)) : 0} 
-                    lessonsCompletedToday={analytics?.stats?.lessonsCompleted || 0} 
+                  <DailyQuests
+                    xpEarnedToday={timelineData.points.length > 1 ? (timelineData.totalPoints - (timelineData.points[timelineData.points.length-2]?.value || 0)) : 0}
+                    lessonsCompletedToday={analytics?.stats?.lessonsCompleted || 0}
                   />
                   {subjectCards.length ? (
                     subjectCards.map((subject) => (
@@ -1395,4 +1412,5 @@ const Dashboard = () => {
     </section>
   );
 };
+
 export default Dashboard;
